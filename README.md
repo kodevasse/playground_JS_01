@@ -1,6 +1,10 @@
 # playground_JS_01
 
-This template should help get you started developing with Vue 3 in Vite.
+VUE3 Vite Javascript playground
+
+CONTENT
+01 - Web3 wallet connect (ONGOING)
+02 - Filtering Array+Objects (FUTURE)
 
 ## Recommended IDE Setup
 
