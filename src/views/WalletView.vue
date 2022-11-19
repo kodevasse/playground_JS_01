@@ -7,7 +7,7 @@
       :dark="true"
     /><button
       v-if="address"
-      @click="initAccount"
+      @click="initAccount(), InitAPICall()"
       class="btn btn-xs btn-success flex mx-auto"
     >
       Resync
@@ -111,7 +111,7 @@
             </div>
           </a>
         </div>
-        <div v-if="!loading && accountNfts">Account has no nfts</div>
+        <div v-if="!accountNfts" class="text-white">Account has no nft's</div>
       </span>
       <span class="flex flex-col text-blue-400">
         Tokens
@@ -125,6 +125,7 @@
           ></span
         >
       </span>
+      <div v-if="!tokenBalance" class="text-white">Account has no tokens</div>
       <span class="flex flex-col">
         <span class="text-blue-400">LatestBlock:</span>
         {{ latestBlock }}</span
@@ -181,9 +182,11 @@ const settings = {
 };
 
 const alchemy = new Alchemy(settings);
-const tokenBalance = ref();
-const accountNfts = ref();
-const loading = ref("true");
+const tokenBalance = ref(true);
+const accountNfts = ref(true);
+const loading = ref(true);
+const noBalance = ref(false);
+const noNfts = ref(false);
 // Standard app
 const address = ref("");
 const balance = ref("");
@@ -250,7 +253,11 @@ const latestBlock = ref();
 const InitAPICall = () => {
   // Get balance
   alchemy.core.getTokenBalances(address.value).then((response) => {
-    tokenBalance.value = response.tokenBalances;
+    if (response.tokenBalances <= 0) {
+      tokenBalance.value = false;
+    } else {
+      tokenBalance.value = response.tokenBalances;
+    }
   });
   // Get last block number
   alchemy.core.getBlockNumber().then((response) => {
@@ -259,14 +266,14 @@ const InitAPICall = () => {
   });
   // Access the Alchemy NFT API
   alchemy.nft.getNftsForOwner(address.value).then((response) => {
-    if (response.ownedNfts.length < 0) {
-      loading.value = false;
+    if (response.ownedNfts.length <= 0) {
       accountNfts.value = false;
     } else {
       accountNfts.value = response.ownedNfts;
     }
     //
   });
+  loading.value = false;
 };
 // const connectWallet = async () => {
 //   await provider.send("eth_requestAccounts", []);
